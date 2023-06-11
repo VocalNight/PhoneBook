@@ -77,15 +77,21 @@ namespace PhoneBook
             }
         }
 
-        private static PhoneBook QueryForPhoneName( string phoneName )
+        private static List<PhoneBook> QueryForPhoneName( string phoneName )
         {
             using (var db = new AppDb())
             {
-                PhoneBook? phone = db.PhoneBook
-                    .Where(phone => phone.Name == phoneName)
-                    .FirstOrDefault();
+                return db.PhoneBook
+                    .Where(phone => phone.Name.Contains(phoneName)).ToList();
+            }
+        }
 
-                return phone;
+        private static List<PhoneBook> QueryForCategory( string category )
+        {
+            using (var db = new AppDb())
+            {
+                return db.PhoneBook
+                    .Where(phone => phone.Category == category).ToList();
             }
         }
 
@@ -97,21 +103,26 @@ namespace PhoneBook
             Console.WriteLine("What id you want to update? ");
             int id = int.Parse(Console.ReadLine());
 
-            PhoneBook phonebook = QueryForPhoneId(id);
-
-            if (phonebook == null)
-            {
-                Console.WriteLine("Id not found!");
-                return;
-            }
-
-            PhoneBook newPhonebook = CreatePhonebook();
-
             using (var db = new AppDb())
             {
-                phonebook = newPhonebook;
+                PhoneBook? phone = db.PhoneBook
+                    .Where(phone => phone.PhoneBookId == id)
+                    .FirstOrDefault();
+
+                if (phone == null)
+                {
+                    Console.WriteLine("Id not found!");
+                    return;
+                }
+
+                PhoneBook newPhonebook = CreatePhonebook();
+
+                phone.PhoneNumber = newPhonebook.PhoneNumber;
+                phone.Category = newPhonebook.Category.ToString();
+                phone.Name = newPhonebook.Name;
+                phone.Email = newPhonebook.Email;
                 db.SaveChanges();
-            } 
+            }
         }
 
         public static void DeletePhone()
@@ -143,11 +154,10 @@ namespace PhoneBook
             Console.WriteLine("What name you want to look up? ");
             string contactName = Console.ReadLine();
 
-            List<PhoneBook> phonebookList = new();
-            PhoneBook phonebook = QueryForPhoneName(contactName);
-            phonebookList.Add(phonebook);
 
-            if (phonebook == null)
+            List<PhoneBook> phonebookList = QueryForPhoneName(contactName);
+
+            if (phonebookList == null || phonebookList.Count == 0)
             {
                 Console.WriteLine("Id not found!");
                 return;
@@ -156,21 +166,35 @@ namespace PhoneBook
             CreateTableEngine.ShowTable(phonebookList, "Contacts");
         }
 
-        public static void PopulateTestData( this AppDb db )
+        public static void LookUpSpecificCategory()
         {
-            var phone = new List<PhoneBook>
+            Console.Clear();
+
+
+            Console.WriteLine("What category?");
+            Console.WriteLine(@"
+1 - Family
+2 - Work
+3 - Friends");
+            string category = Console.ReadKey().Key switch
             {
-                new PhoneBook
-                {
-                    Name = "Test",
-                    Category = contactCategory.family.ToString(),
-                    PhoneNumber = "33518131",
-                    Email = "test@test.com"
-                }
+                ConsoleKey.NumPad1 => Commands.contactCategory.family.ToString(),
+                ConsoleKey.NumPad2 => Commands.contactCategory.work.ToString(),
+                ConsoleKey.NumPad3 => Commands.contactCategory.friends.ToString(),
             };
-            
-            db.PhoneBook.AddRange( phone );
-            db.SaveChanges();
+
+            Console.Clear();
+
+
+            List<PhoneBook> phonebookList = QueryForCategory(category);
+
+            if (phonebookList == null || phonebookList.Count == 0)
+            {
+                Console.WriteLine("No one found");
+                return;
+            }
+
+            CreateTableEngine.ShowTable(phonebookList, "Contacts");
         }
     }
 }

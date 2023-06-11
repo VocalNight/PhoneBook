@@ -1,4 +1,5 @@
-﻿using PhoneBook;
+﻿using Microsoft.EntityFrameworkCore;
+using PhoneBook;
 
 
 CreateDb();
@@ -7,9 +8,7 @@ static void CreateDb()
 {
     using (var db = new AppDb())
     {
-        db.Database.EnsureDeleted();
-        db.Database.EnsureCreated();
-        Commands.PopulateTestData(db);
+        db.Database.Migrate();
         Console.WriteLine("Database created!");
     }
 
@@ -21,7 +20,9 @@ static void CreateDb()
 2 - Update a contact
 3 - Delete a contact
 4 - List all contacts
-5 - Search for specific name");
+5 - Search for specific name
+6 - Search for category
+7 - Exit");
 
         ConsoleKey key = Console.ReadKey().Key;
 
@@ -42,6 +43,11 @@ static void CreateDb()
             case ConsoleKey.NumPad5:
                 Commands.LookUpSpecificPhone();
                 break;
+            case ConsoleKey.NumPad6:
+                Commands.LookUpSpecificCategory();
+                break;
+            case ConsoleKey.NumPad7:
+                return;
         }
 
     } while (true);
