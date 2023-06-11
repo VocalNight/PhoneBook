@@ -1,9 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PhoneBook
 {
@@ -62,10 +57,10 @@ namespace PhoneBook
                 PhoneNumber = phone,
                 Email = email,
                 Category = category,
-            };         
+            };
         }
 
-        private static PhoneBook QueryForPhoneId(int phoneId)
+        private static PhoneBook QueryForPhoneId( int phoneId )
         {
             using (var db = new AppDb())
             {

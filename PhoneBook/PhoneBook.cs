@@ -1,6 +1,4 @@
-﻿using static PhoneBook.Commands;
-
-namespace PhoneBook
+﻿namespace PhoneBook
 {
     public class PhoneBook
     {
